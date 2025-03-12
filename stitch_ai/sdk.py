@@ -96,12 +96,12 @@ class StitchSDK:
 
     def pull_memory(self, space: str, memory_id: str, db_path: str) -> Dict[str, Any]:
         """
-        Pull memory from a space and save to ChromaDB or JSON file
+        Pull memory from a space and save to short term ChromaDB
         
         Args:
             space (str): Name of the memory space
             memory_id (str): ID of the memory to pull
-            db_path (str): Path to save the ChromaDB or JSON file
+            db_path (str): Path to save the ChromaDB
             
         Returns:
             Dict[str, Any]: API response containing memory data
@@ -113,6 +113,24 @@ class StitchSDK:
         self.memory_processor.save_memory_data(response_data, db_path)
         return response_data
 
+    def pull_external_memory(self, memory_id: str, rag_path: str) -> Dict[str, Any]:
+        """
+        Pull memory from a space and save to JSON file
+        
+        Args:
+            memory_id (str): ID of the memory to pull
+            rag_path (str): Path to save the JSON file
+            
+        Returns:
+            Dict[str, Any]: API response containing memory data
+            
+        Raises:
+            Exception: If pulling fails
+        """
+        response_data = self.api_client.pull_external_memory(memory_id)
+        self.memory_processor.save_memory_data(response_data, rag_path)
+        return response_data
+    
     def list_spaces(self) -> Dict[str, Any]:
         """
         List all memory spaces
@@ -160,4 +178,4 @@ class StitchSDK:
         Returns:
             str: Version string
         """
-        return "0.2.0"
+        return "0.2.2"

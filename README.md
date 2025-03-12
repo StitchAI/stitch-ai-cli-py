@@ -42,12 +42,17 @@ stitch push <space_name> [-m COMMIT_MESSAGE] [-e EPISODIC_FILE_PATH] [-c CHARACT
 stitch pull <space_name> <memory_id> [-p DB_PATH]
 ```
 
-4. List all memory spaces:
+4. Pull external memory:
+```bash
+stitch pull-external <memory_id> [-p RAG_PATH]
+```
+
+5. List all memory spaces:
 ```bash
 stitch list-spaces
 ```
 
-5. List all memories in a space:
+6. List all memories in a space:
 ```bash
 stitch list-memories <space_name>
 ```
@@ -66,6 +71,9 @@ stitch list-memories my_space
 
 # Pull a specific memory
 stitch pull my_space memory_123 -p ./db/chroma.sqlite3
+
+# Pull external memory
+stitch pull-external memory_123 -p ./rag/rag.json
 ```
 
 ## Environment Variables

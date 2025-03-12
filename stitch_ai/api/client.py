@@ -79,6 +79,21 @@ class APIClient:
         response.raise_for_status()
         return response.json()
 
+    def pull_external_memory(self, memory_id: str) -> Dict[str, Any]:
+        """
+        Pull external memory
+        
+        Args:
+            memory_id (str): ID of the memory to pull
+            
+        Returns:
+            Dict[str, Any]: API response
+        """
+        url = f"{self.base_url}/memory/external/{memory_id}"
+        response = requests.get(url, headers=self.get_headers())
+        response.raise_for_status()
+        return response.json()
+    
     def list_spaces(self) -> Dict[str, Any]:
         """
         List all memory spaces
