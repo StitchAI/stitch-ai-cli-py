@@ -67,7 +67,19 @@ class StitchSDK:
 
 
 def main():
-    load_dotenv()
+    current_dir = os.getcwd()
+    
+    while True:
+        if os.path.exists(os.path.join(current_dir, '.env')):
+            load_dotenv(os.path.join(current_dir, '.env'))
+            break
+        
+        parent_dir = os.path.dirname(current_dir)
+        if parent_dir == current_dir:
+            load_dotenv()
+            break
+            
+        current_dir = parent_dir
     
     api_key = os.environ.get("STITCH_API_KEY")
     if not api_key:
