@@ -40,17 +40,121 @@ class StitchSDK:
         response.raise_for_status()
         return response.json() if response.text else None
 
-    def push(self, space: str, message: str, episodic_memory: str = None, character_memory: str = None):
-        if episodic_memory is None:
-            episodic_memory = ""
-        if character_memory is None:
-            character_memory = ""
+    def process_sqlite_file(self, file_path):
+        """Extract data from SQLite database file"""
+        try:
+            import sqlite3
+            conn = sqlite3.connect(file_path)
+            cursor = conn.cursor()
+            
+            # Extract data from memories table
+            cursor.execute("SELECT * FROM memories")
+            columns = [description[0] for description in cursor.description]
+            rows = cursor.fetchall()
+            
+            # Convert rows to JSON-serializable format
+            processed_rows = []
+            for row in rows:
+                processed_row = []
+                for item in row:
+                    if isinstance(item, bytes):
+                        try:
+                            processed_row.append(item.decode('utf-8'))
+                        except UnicodeDecodeError:
+                            import base64
+                            processed_row.append(base64.b64encode(item).decode('utf-8'))
+                    else:
+                        processed_row.append(item)
+                processed_rows.append(processed_row)
+            
+            db_content = {
+                "memories": {
+                    "columns": columns,
+                    "rows": processed_rows
+                }
+            }
+            
+            conn.close()
+            return json.dumps(db_content, indent=2)
+        except sqlite3.Error as e:
+            raise Exception(f"Error reading SQLite database: {e}")
+
+    def process_character_file(self, file_path):
+        """Process character JSON file and extract relevant fields"""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                char_data = json.load(f)
+                # Extract only specific keys
+                filtered_data = {}
+                keys_to_extract = ['name', 'system', 'bio', 'lore', 'style', 'adjectives']
+                for key in keys_to_extract:
+                    if key in char_data:
+                        filtered_data[key] = char_data[key]
+                return json.dumps(filtered_data)
+        except FileNotFoundError:
+            raise Exception(f"Character memory file not found - {file_path}")
+        except json.JSONDecodeError:
+            raise Exception(f"Invalid JSON format in character file - {file_path}")
+
+    def process_memory_file(self, file_path):
+        """Read and process a regular memory file"""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except FileNotFoundError:
+            raise Exception(f"Memory file not found - {file_path}")
+
+    def push(self, space: str, message: str = None, episodic_path: str = None, character_path: str = None):
+        """
+        Push memories to the specified space
+        
+        Args:
+            space (str): The name of the memory space
+            message (str, optional): Commit message for the push
+            episodic_path (str, optional): Path to episodic memory file
+            character_path (str, optional): Path to character memory file
+        """
+        if not episodic_path and not character_path:
+            raise ValueError("At least one of episodic_path or character_path must be provided")
+
+        episodic = None
+        character = None
+        
+        # Process episodic memory file
+        if episodic_path:
+            if episodic_path.endswith('.sqlite'):
+                episodic = self.process_sqlite_file(episodic_path)
+            else:
+                episodic = self.process_memory_file(episodic_path)
+        
+        # Process character memory file
+        if character_path:
+            character = self.process_character_file(character_path)
+        
+        # Generate default message if none provided
+        if not message:
+            files = []
+            if episodic_path:
+                files.append(episodic_path)
+            if character_path:
+                files.append(character_path)
+            message = f"Memory push from {' and '.join(files)}"
+        
+        # Make the API call
+        return self.push_data(space, message, episodic, character)
+
+    def push_data(self, space: str, message: str, episodic: str = None, character: str = None):
+        """Raw push method that sends data directly to the API"""
+        if episodic is None:
+            episodic = ""
+        if character is None:
+            character = ""
 
         url = f"{self.base_url}/memory/{space}"
         payload = {
             "message": message,
-            "episodicMemory": episodic_memory,
-            "characterMemory": character_memory
+            "episodicMemory": episodic,
+            "characterMemory": character
         }
         response = requests.post(url, json=payload, headers=self.get_headers())
         response.raise_for_status()
@@ -225,95 +329,31 @@ def main():
             if not args.episodic and not args.character:
                 print("❌ Error: At least one of --episodic or --character must be provided")
                 sys.exit(1)
-
-            message = None
-            episodic = None
-            character = None
             
-            # Extract data from SQLite database if it's a .sqlite file
-            if args.episodic:
-                if args.episodic.endswith('.sqlite'):
-                    try:
-                        import sqlite3
-                        conn = sqlite3.connect(args.episodic)
-                        cursor = conn.cursor()
-                        
-                        # Extract data from memories table
-                        cursor.execute("SELECT * FROM memories")
-                        columns = [description[0] for description in cursor.description]
-                        rows = cursor.fetchall()
-                        
-                        # Convert rows to JSON-serializable format
-                        processed_rows = []
-                        for row in rows:
-                            processed_row = []
-                            for item in row:
-                                if isinstance(item, bytes):
-                                    try:
-                                        processed_row.append(item.decode('utf-8'))
-                                    except UnicodeDecodeError:
-                                        import base64
-                                        processed_row.append(base64.b64encode(item).decode('utf-8'))
-                                else:
-                                    processed_row.append(item)
-                            processed_rows.append(processed_row)
-                        
-                        db_content = {
-                            "memories": {
-                                "columns": columns,
-                                "rows": processed_rows
-                            }
-                        }
-                        
-                        episodic = json.dumps(db_content, indent=2)
-                        conn.close()
-                    except sqlite3.Error as e:
-                        print(f"❌ Error reading SQLite database: {e}")
-                        sys.exit(1)
-                else:
-                    # Read episodic memory file if provided
-                    try:
-                        with open(args.episodic, 'r', encoding='utf-8') as f:
-                            episodic = f.read()
-                    except FileNotFoundError:
-                        print(f"❌ Error: Episodic memory file not found - {args.episodic}")
-                        sys.exit(1)
-            
-            if args.character:
-                try:
-                    with open(args.character, 'r', encoding='utf-8') as f:
-                        char_data = json.load(f)
-                        # Extract only specific keys
-                        filtered_data = {}
-                        keys_to_extract = ['name', 'system', 'bio', 'lore', 'style', 'adjectives']
-                        for key in keys_to_extract:
-                            if key in char_data:
-                                filtered_data[key] = char_data[key]
-                        character = json.dumps(filtered_data)
-                except FileNotFoundError:
-                    print(f"❌ Error: Character memory file not found - {args.character}")
-                    sys.exit(1)
-                except json.JSONDecodeError:
-                    print(f"❌ Error: Invalid JSON format in character file - {args.character}")
-                    sys.exit(1)
-            
-            # Use the file name as the message if no specific message is provided
-            if not args.message:
-                message = f"Memory push from {args.episodic} and {args.character}"
-            else:
-                message = args.message
-            
-            result = sdk.push(args.space, message, episodic, character)
-            print(f"✨ Successfully pushed memories to space '{args.space}' 🚀")
-            print(f"📝 Message: {message}")
-            print(f"📊 Episodic Memory File: {args.episodic}")
-            print(f"👤 Character Memory File: {args.character}")
-            print("\nResponse details:")
-            print(json.dumps(result, indent=2))
+            try:
+                result = sdk.push(
+                    space=args.space,
+                    message=args.message,
+                    episodic_path=args.episodic,
+                    character_path=args.character
+                )
+                print(f"✨ Successfully pushed memories to space '{args.space}' 🚀")
+                print(f"📝 Message: {args.message or 'Auto-generated'}")
+                print(f"📊 Episodic Memory File: {args.episodic}")
+                print(f"👤 Character Memory File: {args.character}")
+                print("\nResponse details:")
+                print(json.dumps(result, indent=2))
+            except Exception as e:
+                print(f"❌ Error during push: {str(e)}")
+                sys.exit(1)
         elif args.command == "pull":
-            result = sdk.pull(args.space, args.memory_id, args.db_path)
-            print(f"✨ Successfully pulled memory '{args.memory_id}' from space '{args.space}' 🚀")            
-            print(json.dumps(result, indent=2))
+            try:
+                result = sdk.pull(args.space, args.memory_id, args.db_path)
+                print(f"✨ Successfully pulled memory '{args.memory_id}' from space '{args.space}' 🚀")            
+                print(json.dumps(result, indent=2))
+            except Exception as e:
+                print(f"❌ Error during pull: {str(e)}")
+                sys.exit(1)
         elif args.command == "list":
             if args.space:
                 result = sdk.list_memories(args.space)
