@@ -182,23 +182,23 @@ def main():
                         print(f"❌ Error: Episodic memory file not found - {args.episodic}")
                         sys.exit(1)
             
-            # Read character memory file if provided
-            try:
-                with open(args.character, 'r', encoding='utf-8') as f:
-                    char_data = json.load(f)
-                    # Extract only specific keys
-                    filtered_data = {}
-                    keys_to_extract = ['name', 'system', 'bio', 'lore', 'style', 'adjectives']
-                    for key in keys_to_extract:
-                        if key in char_data:
-                            filtered_data[key] = char_data[key]
-                    character = json.dumps(filtered_data)
-            except FileNotFoundError:
-                print(f"❌ Error: Character memory file not found - {args.character}")
-                sys.exit(1)
-            except json.JSONDecodeError:
-                print(f"❌ Error: Invalid JSON format in character file - {args.character}")
-                sys.exit(1)
+            if args.character:
+                try:
+                    with open(args.character, 'r', encoding='utf-8') as f:
+                        char_data = json.load(f)
+                        # Extract only specific keys
+                        filtered_data = {}
+                        keys_to_extract = ['name', 'system', 'bio', 'lore', 'style', 'adjectives']
+                        for key in keys_to_extract:
+                            if key in char_data:
+                                filtered_data[key] = char_data[key]
+                        character = json.dumps(filtered_data)
+                except FileNotFoundError:
+                    print(f"❌ Error: Character memory file not found - {args.character}")
+                    sys.exit(1)
+                except json.JSONDecodeError:
+                    print(f"❌ Error: Invalid JSON format in character file - {args.character}")
+                    sys.exit(1)
             
             # Use the file name as the message if no specific message is provided
             if not args.message:
