@@ -100,10 +100,10 @@ def main():
     create_space_parser.add_argument("name", type=str, help="Memory space name")
 
     push_parser = subparsers.add_parser("push", help="Upload memory from file")
-    push_parser.add_argument("space", type=str, help="Memory space name")
-    push_parser.add_argument("message", type=str, help="Memory push commit message")
-    push_parser.add_argument("--episodic", type=str, help="Path to episodic memory file (optional)", default='./agent/data/db.sqlite')
-    push_parser.add_argument("--character", type=str, help="Path to character memory file (optional)", default='./characters/default.character.json')
+    push_parser.add_argument("space", "-s", dest="space", type=str, help="Memory space name")
+    push_parser.add_argument("message", "-m", dest="message", type=str, help="Memory push commit message")
+    push_parser.add_argument("--episodic", "-e", dest="episodic", type=str, help="Path to episodic memory file", required=False, default='./agent/data/db.sqlite')
+    push_parser.add_argument("--character", "-c", dest="character", type=str, help="Path to character memory file", required=False, default='./characters/default.character.json')
 
     pull_parser = subparsers.add_parser("pull", help="Download specific memory")
     pull_parser.add_argument("space", type=str, help="Memory space name")
@@ -120,44 +120,67 @@ def main():
             print(f"✨ Memory space '{args.name}' has been successfully created! 🎉")
             print(json.dumps(result, indent=2))
         elif args.command == "push":
+            if not args.episodic and not args.character:
+                print("❌ Error: At least one of --episodic or --character must be provided")
+                sys.exit(1)
+
             message = None
+            episodic = None
+            character = None
             
             # Extract data from SQLite database if it's a .sqlite file
-            if args.episodic and args.episodic.endswith('.sqlite'):
-                try:
-                    import sqlite3
-                    conn = sqlite3.connect(args.episodic)
-                    cursor = conn.cursor()
-                    
-                    # Get all table names
-                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-                    tables = cursor.fetchall()
-                    
-                    # Extract data from all tables
-                    db_content = {}
-                    for table in tables:
-                        table_name = table[0]
-                        cursor.execute(f"SELECT * FROM {table_name}")
-                        columns = [description[0] for description in cursor.description]
-                        rows = cursor.fetchall()
-                        db_content[table_name] = {
-                            "columns": columns,
-                            "rows": rows
-                        }
-                    
-                    episodic = json.dumps(db_content, indent=2)
-                    conn.close()
-                except sqlite3.Error as e:
-                    print(f"❌ Error reading SQLite database: {e}")
-                    sys.exit(1)
-            else:
-                # Read episodic memory file if provided
-                try:
-                    with open(args.episodic, 'r', encoding='utf-8') as f:
-                        episodic = f.read()
-                except FileNotFoundError:
-                    print(f"❌ Error: Episodic memory file not found - {args.episodic}")
-                    sys.exit(1)
+            if args.episodic:
+                if args.episodic.endswith('.sqlite'):
+                    try:
+                        import sqlite3
+                        conn = sqlite3.connect(args.episodic)
+                        cursor = conn.cursor()
+                        
+                        # Get all table names
+                        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+                        tables = cursor.fetchall()
+                        
+                        # Extract data from all tables
+                        db_content = {}
+                        for table in tables:
+                            table_name = table[0]
+                            cursor.execute(f"SELECT * FROM {table_name}")
+                            columns = [description[0] for description in cursor.description]
+                            rows = cursor.fetchall()
+                            
+                            # Convert rows to JSON-serializable format
+                            processed_rows = []
+                            for row in rows:
+                                processed_row = []
+                                for item in row:
+                                    if isinstance(item, bytes):
+                                        try:
+                                            processed_row.append(item.decode('utf-8'))
+                                        except UnicodeDecodeError:
+                                            import base64
+                                            processed_row.append(base64.b64encode(item).decode('utf-8'))
+                                    else:
+                                        processed_row.append(item)
+                                processed_rows.append(processed_row)
+                            
+                            db_content[table_name] = {
+                                "columns": columns,
+                                "rows": processed_rows
+                            }
+                        
+                        episodic = json.dumps(db_content, indent=2)
+                        conn.close()
+                    except sqlite3.Error as e:
+                        print(f"❌ Error reading SQLite database: {e}")
+                        sys.exit(1)
+                else:
+                    # Read episodic memory file if provided
+                    try:
+                        with open(args.episodic, 'r', encoding='utf-8') as f:
+                            episodic = f.read()
+                    except FileNotFoundError:
+                        print(f"❌ Error: Episodic memory file not found - {args.episodic}")
+                        sys.exit(1)
             
             # Read character memory file if provided
             try:
