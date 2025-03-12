@@ -209,6 +209,13 @@ class StitchSDK:
         response.raise_for_status()
         response_data = response.json()
 
+        # If db_path ends with .json, write only the 'data' portion to the file
+        if db_path.endswith('.json'):
+            os.makedirs(os.path.dirname(os.path.abspath(db_path)), exist_ok=True)
+            with open(db_path, 'w', encoding='utf-8') as f:
+                json.dump(response_data.get('data', {}), f, indent=2)
+            return response_data
+
         db_dir = os.path.dirname(db_path)
         
         # Initialize ChromaDB client
