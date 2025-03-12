@@ -39,9 +39,9 @@ class StitchSDK:
 
     def push(self, space: str, message: str, episodic_memory: str = None, character_memory: str = None):
         if episodic_memory is None:
-            episodic_memory = message
+            episodic_memory = ""
         if character_memory is None:
-            character_memory = message
+            character_memory = ""
 
         url = f"{self.base_url}/memory/{space}"
         payload = {
@@ -136,37 +136,32 @@ def main():
                         conn = sqlite3.connect(args.episodic)
                         cursor = conn.cursor()
                         
-                        # Get all table names
-                        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-                        tables = cursor.fetchall()
+                        # Extract data from memories table
+                        cursor.execute("SELECT * FROM memories")
+                        columns = [description[0] for description in cursor.description]
+                        rows = cursor.fetchall()
                         
-                        # Extract data from all tables
-                        db_content = {}
-                        for table in tables:
-                            table_name = table[0]
-                            cursor.execute(f"SELECT * FROM {table_name}")
-                            columns = [description[0] for description in cursor.description]
-                            rows = cursor.fetchall()
-                            
-                            # Convert rows to JSON-serializable format
-                            processed_rows = []
-                            for row in rows:
-                                processed_row = []
-                                for item in row:
-                                    if isinstance(item, bytes):
-                                        try:
-                                            processed_row.append(item.decode('utf-8'))
-                                        except UnicodeDecodeError:
-                                            import base64
-                                            processed_row.append(base64.b64encode(item).decode('utf-8'))
-                                    else:
-                                        processed_row.append(item)
-                                processed_rows.append(processed_row)
-                            
-                            db_content[table_name] = {
+                        # Convert rows to JSON-serializable format
+                        processed_rows = []
+                        for row in rows:
+                            processed_row = []
+                            for item in row:
+                                if isinstance(item, bytes):
+                                    try:
+                                        processed_row.append(item.decode('utf-8'))
+                                    except UnicodeDecodeError:
+                                        import base64
+                                        processed_row.append(base64.b64encode(item).decode('utf-8'))
+                                else:
+                                    processed_row.append(item)
+                            processed_rows.append(processed_row)
+                        
+                        db_content = {
+                            "memories": {
                                 "columns": columns,
                                 "rows": processed_rows
                             }
+                        }
                         
                         episodic = json.dumps(db_content, indent=2)
                         conn.close()
