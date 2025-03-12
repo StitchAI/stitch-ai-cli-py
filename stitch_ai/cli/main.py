@@ -25,6 +25,11 @@ def create_parser() -> argparse.ArgumentParser:
     pull_parser.add_argument('memory_id', help='ID of the memory to pull')
     pull_parser.add_argument('--db-path', '-p', required=True, help='Path to save the ChromaDB or JSON file')
 
+    # Pull external memory command
+    pull_external_parser = subparsers.add_parser('pull-external', help='Pull external memory')
+    pull_external_parser.add_argument('memory_id', help='ID of the memory to pull')
+    pull_external_parser.add_argument('--rag-path', '-p', required=True, help='Path to save the RAG file')
+
     # List spaces command
     subparsers.add_parser('list-spaces', help='List all memory spaces')
 
@@ -71,6 +76,16 @@ def handle_pull(sdk: StitchSDK, args: argparse.Namespace) -> None:
         print(response)
     except Exception as e:
         print(f"Error pulling memory: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def handle_pull_external(sdk: StitchSDK, args: argparse.Namespace) -> None:
+    """Handle pull-external command"""
+    try:
+        response = sdk.pull_external_memory(args.memory_id, args.rag_path)
+        print(f"Successfully pulled external memory")
+        print(response)
+    except Exception as e:
+        print(f"Error pulling external memory: {e}", file=sys.stderr)
         sys.exit(1)
 
 def handle_list_spaces(sdk: StitchSDK, args: argparse.Namespace) -> None:
@@ -123,6 +138,7 @@ def main() -> None:
         'create-space': handle_create_space,
         'push': handle_push,
         'pull': handle_pull,
+        'pull-external': handle_pull_external,
         'list-spaces': handle_list_spaces,
         'list-memories': handle_list_memories,
     }
