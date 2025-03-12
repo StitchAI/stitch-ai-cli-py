@@ -23,6 +23,7 @@ def create_parser() -> argparse.ArgumentParser:
     pull_parser = subparsers.add_parser('pull', help='Pull memory from a space')
     pull_parser.add_argument('space', help='Name of the memory space')
     pull_parser.add_argument('memory_id', help='ID of the memory to pull')
+    pull_parser.add_argument('--db-path', '-p', required=True, help='Path to save the ChromaDB or JSON file')
 
     # List spaces command
     subparsers.add_parser('list-spaces', help='List all memory spaces')
@@ -61,8 +62,12 @@ def handle_push(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_pull(sdk: StitchSDK, args: argparse.Namespace) -> None:
     """Handle pull command"""
     try:
-        response = sdk.pull_memory(args.space, args.memory_id)
+        response = sdk.pull_memory(args.space, args.memory_id, args.db_path)
         print(f"Successfully pulled memory from space: {args.space}")
+        if args.db_path.endswith('.json'):
+            print(f"Memory data saved to JSON file: {args.db_path}")
+        else:
+            print(f"Memory data saved to ChromaDB at: {args.db_path}")
         print(response)
     except Exception as e:
         print(f"Error pulling memory: {e}", file=sys.stderr)
