@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="stitch_ai",
-    version="0.1.2",
+    version="0.1.9",
     description="Stitch AI SDK for managing memory spaces and memories",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
@@ -11,7 +11,13 @@ setup(
     packages=find_packages(),
     install_requires=[
         "requests",
+        "python-dotenv",
     ],
+    entry_points={
+        "console_scripts": [
+            "stitch=stitch_ai.sdk:main",
+        ],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
