@@ -101,9 +101,9 @@ def main():
 
     push_parser = subparsers.add_parser("push", help="Upload memory from file")
     push_parser.add_argument("-s", "--space", dest="space", type=str, help="Memory space name", required=True)
-    push_parser.add_argument("-m", "--message", dest="message", type=str, help="Memory push commit message")
-    push_parser.add_argument("--episodic", "-e", dest="episodic", type=str, help="Path to episodic memory file", required=False, default='./agent/data/db.sqlite')
-    push_parser.add_argument("--character", "-c", dest="character", type=str, help="Path to character memory file", required=False, default='./characters/default.character.json')
+    push_parser.add_argument("-m", "--message", dest="message", type=str, help="Memory push commit message", required=False)
+    push_parser.add_argument("-e", "--episodic", dest="episodic", type=str, help="Path to episodic memory file (example: ./agent/data/db.sqlite)", required=False)
+    push_parser.add_argument("-c", "--character", dest="character", type=str, help="Path to character memory file (example: ./characters/default.character.json)", required=False)
 
     pull_parser = subparsers.add_parser("pull", help="Download specific memory")
     pull_parser.add_argument("space", type=str, help="Memory space name")
