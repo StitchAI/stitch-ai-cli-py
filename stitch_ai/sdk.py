@@ -94,13 +94,14 @@ class StitchSDK:
             character=character_data
         )
 
-    def pull_memory(self, space: str, memory_id: str) -> Dict[str, Any]:
+    def pull_memory(self, space: str, memory_id: str, db_path: str) -> Dict[str, Any]:
         """
-        Pull memory from a space
+        Pull memory from a space and save to ChromaDB or JSON file
         
         Args:
             space (str): Name of the memory space
             memory_id (str): ID of the memory to pull
+            db_path (str): Path to save the ChromaDB or JSON file
             
         Returns:
             Dict[str, Any]: API response containing memory data
@@ -108,7 +109,9 @@ class StitchSDK:
         Raises:
             Exception: If pulling fails
         """
-        return self.api_client.pull_memory(space, memory_id)
+        response_data = self.api_client.pull_memory(space, memory_id)
+        self.memory_processor.save_memory_data(response_data, db_path)
+        return response_data
 
     def list_spaces(self) -> Dict[str, Any]:
         """
