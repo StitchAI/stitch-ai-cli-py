@@ -1,4 +1,5 @@
 # Stitch SDK
+[![version](https://img.shields.io/badge/version-0.2.7-yellow.svg)](https://semver.org)
 
 Stitch SDK is a Python library that wraps the API for managing memory spaces and memories. It provides both a Python SDK and a command-line interface (CLI).
 
