@@ -16,7 +16,7 @@ class APIClient:
     def get_headers(self) -> Dict[str, str]:
         """Get the default headers for API requests"""
         return {
-            "Authorization": f"Bearer {self.api_key}",
+            "apikey": self.api_key,
             "Content-Type": "application/json",
         }
 
@@ -74,7 +74,7 @@ class APIClient:
         Returns:
             Dict[str, Any]: API response
         """
-        url = f"{self.base_url}/memory/{space}/pull/{memory_id}"
+        url = f"{self.base_url}/memory/{space}/{memory_id}"
         response = requests.get(url, headers=self.get_headers())
         response.raise_for_status()
         return response.json()
@@ -116,7 +116,7 @@ class APIClient:
         Returns:
             Dict[str, Any]: API response containing list of memories
         """
-        url = f"{self.base_url}/memory/{space}/list"
+        url = f"{self.base_url}/memory/{space}"
         response = requests.get(url, headers=self.get_headers())
         response.raise_for_status()
         return response.json()
