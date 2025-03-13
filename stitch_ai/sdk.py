@@ -30,6 +30,21 @@ class StitchSDK:
         self.memory_processor = MemoryProcessor()
         self.text_processor = TextProcessor()
 
+    def create_key(self, wallet: str) -> Dict[str, Any]:
+        """
+        Create a new API key for a wallet
+        
+        Args:
+            wallet (str): Wallet address
+            
+        Returns:
+            Dict[str, Any]: API response containing key details
+            
+        Raises:
+            Exception: If key creation fails
+        """
+        return self.api_client.create_key(wallet)
+
     def create_space(self, name: str) -> Dict[str, Any]:
         """
         Create a new memory space
