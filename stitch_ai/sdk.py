@@ -193,4 +193,4 @@ class StitchSDK:
         Returns:
             str: Version string
         """
-        return "0.2.2"
+        return "0.2.7"

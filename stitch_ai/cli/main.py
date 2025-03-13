@@ -46,81 +46,95 @@ def create_parser() -> argparse.ArgumentParser:
 def handle_key(sdk: StitchSDK, args: argparse.Namespace) -> None:
     """Handle key command"""
     try:
+        print("_" * 50)
         response = sdk.create_key(args.wallet)
-        print(f"Successfully created key for wallet: {args.wallet}")
+        print(f"🔑 Successfully created key for wallet: {args.wallet}")
         print(response)
+        print("_" * 50)
     except Exception as e:
-        print(f"Error creating key: {e}", file=sys.stderr)
+        print(f"❌ Error creating key: {e}", file=sys.stderr)
         sys.exit(1)
 
 def handle_create_space(sdk: StitchSDK, args: argparse.Namespace) -> None:
     """Handle create-space command"""
     try:
+        print("_" * 50)
         response = sdk.create_space(args.name)
-        print(f"Successfully created space: {args.name}")
+        print(f"🌟 Successfully created space: {args.name}")
         print(response)
+        print("_" * 50)
     except Exception as e:
-        print(f"Error creating space: {e}", file=sys.stderr)
+        print(f"❌ Error creating space: {e}", file=sys.stderr)
         sys.exit(1)
 
 def handle_push(sdk: StitchSDK, args: argparse.Namespace) -> None:
     """Handle push command"""
     try:
+        print("_" * 50)
         response = sdk.push(
             space=args.space,
             message=args.message,
             episodic_path=args.episodic,
             character_path=args.character
         )
-        print(f"Successfully pushed memory to space: {args.space}")
+        print(f"📤 Successfully pushed memory to space: {args.space}")
         print(response)
+        print("_" * 50)
     except Exception as e:
-        print(f"Error pushing memory: {e}", file=sys.stderr)
+        print(f"❌ Error pushing memory: {e}", file=sys.stderr)
         sys.exit(1)
 
 def handle_pull(sdk: StitchSDK, args: argparse.Namespace) -> None:
     """Handle pull command"""
     try:
+        print("_" * 50)
         response = sdk.pull_memory(args.space, args.memory_id, args.db_path)
-        print(f"Successfully pulled memory from space: {args.space}")
+        print(f"📥 Successfully pulled memory from space: {args.space}")
         if args.db_path.endswith('.json'):
-            print(f"Memory data saved to JSON file: {args.db_path}")
+            print(f"📄 Memory data saved to JSON file: {args.db_path}")
         else:
-            print(f"Memory data saved to ChromaDB at: {args.db_path}")
+            print(f"💾 Memory data saved to ChromaDB at: {args.db_path}")
         print(response)
+        print("_" * 50)
     except Exception as e:
-        print(f"Error pulling memory: {e}", file=sys.stderr)
+        print(f"❌ Error pulling memory: {e}", file=sys.stderr)
         sys.exit(1)
 
 def handle_pull_external(sdk: StitchSDK, args: argparse.Namespace) -> None:
     """Handle pull-external command"""
     try:
+        print("_" * 50)
         response = sdk.pull_external_memory(args.memory_id, args.rag_path)
-        print(f"Successfully pulled external memory")
+        print(f"🌐 Successfully pulled external memory")
         print(response)
+        print("_" * 50)
     except Exception as e:
-        print(f"Error pulling external memory: {e}", file=sys.stderr)
+        print(f"❌ Error pulling external memory: {e}", file=sys.stderr)
         sys.exit(1)
 
 def handle_list_spaces(sdk: StitchSDK, args: argparse.Namespace) -> None:
     """Handle list-spaces command"""
     try:
+        print("_" * 50)
         response = sdk.list_spaces()
-        print("Available memory spaces:")
+        print("📚 Available memory spaces:")
         for space in response['data']:
-            print(space)
+            print(f"  • {space}")
+        print("_" * 50)
     except Exception as e:
-        print(f"Error listing spaces: {e}", file=sys.stderr)
+        print(f"❌ Error listing spaces: {e}", file=sys.stderr)
         sys.exit(1)
 
 def handle_list_memories(sdk: StitchSDK, args: argparse.Namespace) -> None:
     """Handle list-memories command"""
     try:
+        print("_" * 50)
         response = sdk.list_memories(args.space)
-        print(f"Memories in space '{args.space}':")
+        print(f"🧠 Memories in space '{args.space}':")
         print(response)
+        print("_" * 50)
     except Exception as e:
-        print(f"Error listing memories: {e}", file=sys.stderr)
+        print(f"❌ Error listing memories: {e}", file=sys.stderr)
         sys.exit(1)
 
 def main() -> None:
