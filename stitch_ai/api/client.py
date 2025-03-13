@@ -16,7 +16,7 @@ class APIClient:
     def get_headers(self) -> Dict[str, str]:
         """Get the default headers for API requests"""
         return {
-            "Authorization": f"Bearer {self.api_key}",
+            "apiKey": self.api_key,
             "Content-Type": "application/json",
         }
 
