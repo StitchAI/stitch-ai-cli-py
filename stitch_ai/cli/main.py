@@ -93,8 +93,8 @@ def handle_list_spaces(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         response = sdk.list_spaces()
         print("Available memory spaces:")
-        for space in response['spaces']:
-            print(f"- {space['name']}")
+        for space in response['data']:
+            print(space)
     except Exception as e:
         print(f"Error listing spaces: {e}", file=sys.stderr)
         sys.exit(1)
@@ -104,8 +104,7 @@ def handle_list_memories(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         response = sdk.list_memories(args.space)
         print(f"Memories in space '{args.space}':")
-        for memory in response['memories']:
-            print(f"- {memory['id']}: {memory['message']}")
+        print(response)
     except Exception as e:
         print(f"Error listing memories: {e}", file=sys.stderr)
         sys.exit(1)
