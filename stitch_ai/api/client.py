@@ -20,6 +20,21 @@ class APIClient:
             "Content-Type": "application/json",
         }
 
+    def create_key(self, wallet: str) -> Dict[str, Any]:
+        """
+        Create a new API key for a wallet
+        
+        Args:
+            wallet (str): Wallet address
+            
+        Returns:
+            Dict[str, Any]: API response containing key details
+        """
+        url = f"{self.base_url}/user?walletAddress={wallet}"
+        response = requests.get(url, headers=self.get_headers())
+        response.raise_for_status()
+        return response.json()
+
     def create_space(self, name: str) -> Dict[str, Any]:
         """
         Create a new memory space

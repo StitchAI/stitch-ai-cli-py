@@ -8,6 +8,10 @@ def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Stitch AI CLI tool")
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
 
+    # Key generation command
+    key_gen_parser = subparsers.add_parser('key', help='Generate a new API key')
+    key_gen_parser.add_argument('wallet', help='Wallet address')
+
     # Create space command
     create_space_parser = subparsers.add_parser('create-space', help='Create a new memory space')
     create_space_parser.add_argument('name', help='Name of the memory space')
@@ -38,6 +42,16 @@ def create_parser() -> argparse.ArgumentParser:
     list_memories_parser.add_argument('space', help='Name of the memory space')
 
     return parser
+
+def handle_key(sdk: StitchSDK, args: argparse.Namespace) -> None:
+    """Handle key command"""
+    try:
+        response = sdk.create_key(args.wallet)
+        print(f"Successfully created key for wallet: {args.wallet}")
+        print(response)
+    except Exception as e:
+        print(f"Error creating key: {e}", file=sys.stderr)
+        sys.exit(1)
 
 def handle_create_space(sdk: StitchSDK, args: argparse.Namespace) -> None:
     """Handle create-space command"""
@@ -135,6 +149,7 @@ def main() -> None:
 
     # Command handlers
     handlers = {
+        'key': handle_key,
         'create-space': handle_create_space,
         'push': handle_push,
         'pull': handle_pull,
