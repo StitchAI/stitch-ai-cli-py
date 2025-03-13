@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="stitch_ai",
-    version="0.2.2",
+    version="0.2.3",
     description="Stitch AI SDK for managing memory spaces and memories",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
@@ -15,7 +15,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "stitch=stitch_ai.sdk:main",
+            "stitch=stitch_ai.cli.main:main",
         ],
     },
     classifiers=[
