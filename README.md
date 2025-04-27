@@ -83,7 +83,7 @@ stitch list-memories my_space
 ## Environment Variables
 
 - `STITCH_API_KEY`: Your API key (required)
-- `STITCH_API_URL`: API endpoint (optional, defaults to https://api-devnet.stitch-ai.co)
+- `STITCH_API_URL`: API endpoint (optional, defaults to https://api-demo.stitch-ai.co)
 
 
 ## SDK Usage
