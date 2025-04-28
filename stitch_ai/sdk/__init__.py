@@ -2,7 +2,6 @@ import os
 from typing import Optional, Dict, Any
 from .processors.memory_processor import MemoryProcessor
 from .processors.text_processor import TextProcessor
-from .api.client import APIClient
 from .user import UserSDK
 from .marketplace import MarketplaceSDK
 from .memory import MemorySDK
@@ -19,7 +18,6 @@ class StitchSDK:
         self.api_key = api_key or os.environ.get("STITCH_API_KEY")
         if not self.api_key:
             raise ValueError("API key must be provided either directly or via STITCH_API_KEY environment variable")
-        self.api_client = APIClient(base_url, self.api_key)
         self.memory_processor = MemoryProcessor()
         self.text_processor = TextProcessor()
         self.user = UserSDK(base_url, self.api_key)
@@ -31,32 +29,47 @@ class StitchSDK:
     def push(self, space: str, message: Optional[str] = None, episodic_path: Optional[str] = None, character_path: Optional[str] = None) -> Dict[str, Any]:
         if not episodic_path and not character_path:
             raise ValueError("At least one of episodic_path or character_path must be provided")
-        episodic_data = None
-        character_data = None
+        user_id = os.environ.get("STITCH_USER_ID")
+        if not user_id:
+            raise ValueError("User ID must be provided via STITCH_USER_ID environment variable")
+        files = []
         if episodic_path:
             if episodic_path.endswith('.sqlite'):
-                episodic_data = self.memory_processor.process_sqlite_file(episodic_path)
+                data = self.memory_processor.process_sqlite_file(episodic_path)
+                files.append({"type": "episodic", "data": data})
             else:
-                episodic_data = self.memory_processor.process_memory_file(episodic_path)
-                if isinstance(episodic_data, str) and len(episodic_data) > 2000:
-                    episodic_data = self.text_processor.chunk_text(episodic_data)
+                data = self.memory_processor.process_memory_file(episodic_path)
+                if isinstance(data, str) and len(data) > 2000:
+                    data = self.text_processor.chunk_text(data)
+                files.append({"type": "episodic", "data": data})
         if character_path:
-            character_data = self.memory_processor.process_character_file(character_path)
-        return self.api_client.push_memory(
-            space=space,
-            message=message,
-            episodic=episodic_data,
-            character=character_data
-        )
+            data = self.memory_processor.process_character_file(character_path)
+            files.append({"type": "character", "data": data})
+        return self.memory.push_memory(user_id=user_id, repository=space, message=message, files=files)
 
-    def pull_memory(self, space: str, memory_id: str, db_path: str) -> Dict[str, Any]:
-        response_data = self.api_client.pull_memory(space, memory_id)
-        self.memory_processor.save_memory_data(response_data, db_path)
+    def pull_memory(self, user_id: str, repository: str, db_path: str, ref: str = "main") -> Dict[str, Any]:
+        response_data = self.memory_space.get_space(user_id, repository, ref)
+        memory = response_data.get("memory", {})
+        save_data = {"data": {}}
+
+        if "character" not in memory and "episodic" not in memory:
+            raise ValueError("Memory does not contain character or episodic data")
+        if "character" in memory:
+            save_data["data"]["character"] = memory["character"]
+        if "episodic" in memory:
+            save_data["data"]["episodic"] = memory["episodic"]
+        self.memory_processor.save_memory_data(save_data, db_path)
         return response_data
 
-    def pull_external_memory(self, memory_id: str, rag_path: str) -> Dict[str, Any]:
-        response_data = self.api_client.pull_external_memory(memory_id)
-        self.memory_processor.save_memory_data(response_data, rag_path)
+    def pull_external_memory(self, user_id: str, repository: str, rag_path: str, ref: str = "main") -> Dict[str, Any]:
+        response_data = self.memory_space.get_space(user_id, repository, ref)
+        memory = response_data.get("memory", {})
+        save_data = {"data": {}}
+        if "external" not in memory:
+            raise ValueError("Memory does not contain external data")
+        if "external" in memory:
+            save_data["data"]["external"] = memory["external"]
+        self.memory_processor.save_memory_data(save_data, rag_path)
         return response_data
 
 __all__ = ["StitchSDK"] 
