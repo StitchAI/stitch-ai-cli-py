@@ -6,6 +6,8 @@ from ..sdk import StitchSDK
 from .memory_cli import add_memory_subparsers
 from .git_cli import add_git_subparsers
 from .key_cli import add_key_subparsers
+from .marketplace_cli import add_marketplace_subparsers
+from .user_cli import add_user_subparsers
 
 def create_parser_and_handlers():
     parser = argparse.ArgumentParser(description="Stitch AI CLI tool")
@@ -14,6 +16,8 @@ def create_parser_and_handlers():
     add_key_subparsers(subparsers, handlers)
     add_memory_subparsers(subparsers, handlers)
     add_git_subparsers(subparsers, handlers)
+    add_marketplace_subparsers(subparsers, handlers)
+    add_user_subparsers(subparsers, handlers)
     return parser, handlers
 
 def main() -> None:
