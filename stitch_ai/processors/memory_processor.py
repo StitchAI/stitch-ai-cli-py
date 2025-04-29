@@ -95,6 +95,17 @@ class MemoryProcessor:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(data.get('data', {}), f, indent=2)
 
+    def _delete_short_term_collections(self, client):
+        for _ in range(5):
+            collections = client.list_collections()
+            if "short_term" in collections:
+                try:
+                    client.delete_collection("short_term")
+                except Exception as e:
+                    print(f"Error deleting short_term: {e}")
+            else:
+                break
+
     def _save_to_chromadb(self, data: Dict[str, Any], db_path: str) -> None:
         """Save memory data to ChromaDB"""
         db_dir = os.path.dirname(db_path)
@@ -104,7 +115,9 @@ class MemoryProcessor:
         
         # Backup existing collection if it exists
         self._backup_existing_collection(client, db_dir)
-        
+
+        self._delete_short_term_collections(client)
+
         # Create embedding function
         default_ef = embedding_functions.DefaultEmbeddingFunction()
         

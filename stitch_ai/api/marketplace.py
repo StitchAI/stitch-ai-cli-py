@@ -28,7 +28,7 @@ class MarketplaceAPIClient(BaseAPIClient):
         payload = body
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"body": body}
 
     def purchase_memory(self, body: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -39,4 +39,4 @@ class MarketplaceAPIClient(BaseAPIClient):
         payload = body
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json() 
+        return {"body": body} 
