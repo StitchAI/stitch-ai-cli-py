@@ -3,56 +3,56 @@ from typing import Dict, Any, Optional
 from .client import BaseAPIClient
 
 class MemorySpaceAPIClient(BaseAPIClient):
-    def create_space(self, user_id: str, repository: str) -> Dict[str, Any]:
+    def create_space(self, repository: str) -> Dict[str, Any]:
         """
         Create a new memory space (/memory-space/create)
         """
         url = f"{self.base_url}/memory-space/create"
-        params = {"userId": user_id, "apiKey": self.api_key}
+        params = {"userId": self.user_id, "apiKey": self.api_key}
         payload = {"repository": repository}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
         return response.json()
 
-    def get_space(self, user_id: str, repository: str, ref: Optional[str] = None) -> Dict[str, Any]:
+    def get_space(self, repository: str, ref: Optional[str] = None) -> Dict[str, Any]:
         """
         Get a memory space (/memory-space/{repository})
         """
         url = f"{self.base_url}/memory-space/{repository}"
-        params = {"userId": user_id, "apiKey": self.api_key}
+        params = {"userId": self.user_id, "apiKey": self.api_key}
         if ref:
             params["ref"] = ref
         response = requests.get(url, params=params, headers=self.get_headers())
         response.raise_for_status()
         return response.json()
 
-    def delete_space(self, user_id: str, repository: str) -> Dict[str, Any]:
+    def delete_space(self, repository: str) -> Dict[str, Any]:
         """
         Delete a memory space (/memory-space/{repository})
         """
         url = f"{self.base_url}/memory-space/{repository}"
-        params = {"userId": user_id, "apiKey": self.api_key}
+        params = {"userId": self.user_id, "apiKey": self.api_key}
         response = requests.delete(url, params=params, headers=self.get_headers())
         response.raise_for_status()
         return response.json()
 
-    def clone_space(self, user_id: str, repository: str, source_name: str, source_owner_id: str) -> Dict[str, Any]:
+    def clone_space(self, repository: str, source_name: str, source_owner_id: str) -> Dict[str, Any]:
         """
         Clone a memory space (/memory-space/clone)
         """
         url = f"{self.base_url}/memory-space/clone"
-        params = {"userId": user_id, "apiKey": self.api_key}
+        params = {"userId": self.user_id, "apiKey": self.api_key}
         payload = {"repository": repository, "sourceName": source_name, "sourceOwnerId": source_owner_id}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
         return response.json()
 
-    def get_history(self, user_id: str, repository: str) -> Dict[str, Any]:
+    def get_history(self, repository: str) -> Dict[str, Any]:
         """
         Get memory space history (/memory-space/{repository}/history)
         """
         url = f"{self.base_url}/memory-space/{repository}/history"
-        params = {"userId": user_id, "apiKey": self.api_key}
+        params = {"userId": self.user_id, "apiKey": self.api_key}
         response = requests.get(url, params=params, headers=self.get_headers())
         response.raise_for_status()
         return response.json() 

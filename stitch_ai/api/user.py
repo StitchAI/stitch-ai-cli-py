@@ -43,7 +43,7 @@ class UserAPIClient(BaseAPIClient):
         """
         Get user memory (/user/memory)
         """
-        url = f"{self.base_url}/user/memory"
+        url = f"{self.base_url}/user/memory/all"
         params = {"userId": self.user_id, "apiKey": self.api_key}
         if memory_names:
             params["memoryNames"] = memory_names
