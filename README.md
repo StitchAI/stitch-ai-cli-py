@@ -1,5 +1,5 @@
 # Stitch SDK
-[![version](https://img.shields.io/badge/version-0.3.0-yellow.svg)](https://semver.org)
+[![version](https://img.shields.io/badge/version-0.3.12-yellow.svg)](https://semver.org)
 
 Stitch SDK is a Python library that wraps the API for managing memory spaces and memories. It provides both a Python SDK and a command-line interface (CLI).
 
@@ -19,59 +19,64 @@ export STITCH_API_KEY=your_api_key
 
 ### Available Commands
 
-1. Create a new API key:
+1. Get user info:
 ```bash
-stitch key <user_id> <hashed_id> <name>
+stitch user-get
 ```
 
-2. Create a new memory space:
+2. Get user's memory:
+```bash
+stitch user-memory --memory-names <memory_names>
+```
+
+3. Get user's histories:
+```bash
+stitch user-histories
+```
+
+4. Get user's purchased memories:
+```bash
+stitch user-purchases
+```
+
+5. Create a new memory space:
 ```bash
 stitch create-space <space_name>
 ```
 
-3. Push memory to a space:
+6. Get memory space:
+```bash
+stitch get-space <space_name>
+```
+
+7. Delete memory space:
+```bash
+stitch delete-space <space_name>
+```
+
+8. Get memory space's histories:
+```bash
+stitch get_history <space_name>
+```
+
+9. Push agent memory:
 ```bash
 stitch push <space_name> [-m COMMIT_MESSAGE] [-e EPISODIC_FILE_PATH] [-c CHARACTER_FILE_PATH]
 ```
 
-4. Pull memory from a space:
+10. Pull memory from a memory space:
 ```bash
-stitch pull <user_id> <repository> -p <db_path> [--ref REF]
+stitch pull <space_name> -p <db_path>
 ```
 
-5. Pull external memory:
+11. Pull external memory:
 ```bash
-stitch pull-external <user_id> <repository> -p <rag_path> [--ref REF]
+stitch pull-external <space_name> -p <rag_path>
 ```
 
-6. User Management Commands:
+12. Get market listed memories:
 ```bash
-# Get user info
-stitch user-get <user_id>
-
-# Get user statistics
-stitch user-stat <user_id>
-
-# Get user histories
-stitch user-histories <user_id> [--paginate PAGINATE] [--sort SORT] [--filters FILTERS]
-
-# Get user memory
-stitch user-memory <user_id> <api_key> [--memory-names MEMORY_NAMES]
-
-# Get user purchases
-stitch user-purchases <user_id> [--paginate PAGINATE] [--sort SORT] [--filters FILTERS]
-```
-
-7. Marketplace Commands:
-```bash
-# List memory spaces in marketplace
-stitch market-list-spaces <type> [--user-id USER_ID] [--paginate PAGINATE] [--sort SORT] [--filters FILTERS]
-
-# List memory in a marketplace space
-stitch market-list-memory <user_id> <repository> <api_key> <body>
-
-# Purchase memory from marketplace
-stitch market-purchase <user_id> <api_key> <body>
+stitch market-list-spaces <type (AGENT_MEMORY | EXTERNAL_MEMORY)>
 ```
 
 ### Examples
@@ -81,16 +86,19 @@ stitch market-purchase <user_id> <api_key> <body>
 stitch create-space my_space
 
 # Push memory with a message and files
-stitch push my_space -m "Initial memory" -e ./agent/data/db.sqlite -c ./characters/default.character.json
+stitch push my_space -m "Initial memory" -e ./agent/episodic.json -c ./agent/character.json
 
 # Pull memory
-stitch pull user123 my_space -p ./db/chroma.sqlite3
+stitch pull my_space -p ./db/chroma.sqlite3
 
 # Pull external memory
-stitch pull-external user123 my_space -p ./rag/rag.json
+stitch pull-external my_space -p ./rag/rag.json
 
 # Get user info
-stitch user-get user123
+stitch user-get
+
+# Get user's memories
+stitch user-memory --memory-names my_space
 
 # List marketplace spaces
 stitch market-list-spaces public
