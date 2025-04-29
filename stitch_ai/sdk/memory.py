@@ -4,5 +4,5 @@ class MemorySDK:
     def __init__(self, base_url: str, api_key: str):
         self.client = MemoryAPIClient(base_url, api_key)
 
-    def push_memory(self, user_id: str, repository: str, message: str, files: list):
-        return self.client.push_memory(user_id, repository, message, files) 
+    def push_memory(self, repository: str, message: str, files: list):
+        return self.client.push_memory(repository, message, files) 

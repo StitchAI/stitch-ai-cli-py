@@ -5,43 +5,36 @@ import argparse
 def add_git_subparsers(subparsers, handlers):
     # Git: create repo
     create_repo_parser = subparsers.add_parser('create-repo', help='Create a new git repository')
-    create_repo_parser.add_argument('user_id', help='Wallet address (userId)')
     create_repo_parser.add_argument('name', help='Repository name')
 
     # Git: clone repo
     clone_repo_parser = subparsers.add_parser('clone-repo', help='Clone a git repository')
-    clone_repo_parser.add_argument('user_id', help='Wallet address (userId)')
     clone_repo_parser.add_argument('name', help='New repository name')
     clone_repo_parser.add_argument('source_name', help='Source repository name')
     clone_repo_parser.add_argument('source_owner_id', help='Source owner wallet address')
 
     # Git: list branches
     list_branches_parser = subparsers.add_parser('list-branches', help='List all branches in a repository')
-    list_branches_parser.add_argument('user_id', help='Wallet address (userId)')
     list_branches_parser.add_argument('repository', help='Repository name')
 
     # Git: checkout branch
     checkout_branch_parser = subparsers.add_parser('checkout-branch', help='Checkout a branch in a repository')
-    checkout_branch_parser.add_argument('user_id', help='Wallet address (userId)')
     checkout_branch_parser.add_argument('repository', help='Repository name')
     checkout_branch_parser.add_argument('branch', help='Branch name')
 
     # Git: create branch
     create_branch_parser = subparsers.add_parser('create-branch', help='Create a new branch in a repository')
-    create_branch_parser.add_argument('user_id', help='Wallet address (userId)')
     create_branch_parser.add_argument('repository', help='Repository name')
     create_branch_parser.add_argument('branch_name', help='New branch name')
     create_branch_parser.add_argument('base_branch', help='Base branch name')
 
     # Git: delete branch
     delete_branch_parser = subparsers.add_parser('delete-branch', help='Delete a branch in a repository')
-    delete_branch_parser.add_argument('user_id', help='Wallet address (userId)')
     delete_branch_parser.add_argument('repository', help='Repository name')
     delete_branch_parser.add_argument('branch', help='Branch name')
 
     # Git: merge
     merge_parser = subparsers.add_parser('merge', help='Merge two branches in a repository')
-    merge_parser.add_argument('user_id', help='Wallet address (userId)')
     merge_parser.add_argument('repository', help='Repository name')
     merge_parser.add_argument('ours', help='Ours branch name')
     merge_parser.add_argument('theirs', help='Theirs branch name')
@@ -49,7 +42,6 @@ def add_git_subparsers(subparsers, handlers):
 
     # Git: commit file
     commit_file_parser = subparsers.add_parser('commit-file', help='Commit a file to a repository')
-    commit_file_parser.add_argument('user_id', help='Wallet address (userId)')
     commit_file_parser.add_argument('repository', help='Repository name')
     commit_file_parser.add_argument('file_path', help='File path')
     commit_file_parser.add_argument('content', help='File content')
@@ -57,20 +49,17 @@ def add_git_subparsers(subparsers, handlers):
 
     # Git: get log
     get_log_parser = subparsers.add_parser('get-log', help='Get the commit log of a repository')
-    get_log_parser.add_argument('user_id', help='Wallet address (userId)')
     get_log_parser.add_argument('repository', help='Repository name')
     get_log_parser.add_argument('--depth', type=int, default=None, help='Number of commits to retrieve')
 
     # Git: get file
     get_file_parser = subparsers.add_parser('get-file', help='Get a file from a repository at a specific ref')
-    get_file_parser.add_argument('user_id', help='Wallet address (userId)')
     get_file_parser.add_argument('repository', help='Repository name')
     get_file_parser.add_argument('file_path', help='File path')
     get_file_parser.add_argument('ref', help='Branch or commit ref')
 
     # Git: diff
     diff_parser = subparsers.add_parser('diff', help='Get the diff between two commits in a repository')
-    diff_parser.add_argument('user_id', help='Wallet address (userId)')
     diff_parser.add_argument('repository', help='Repository name')
     diff_parser.add_argument('oid1', help='First commit oid')
     diff_parser.add_argument('oid2', help='Second commit oid')
@@ -92,7 +81,7 @@ def add_git_subparsers(subparsers, handlers):
 def handle_create_repo(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.create_repo(args.user_id, args.name)
+        response = sdk.git.create_repo(args.name)
         print(f"📦 Successfully created repository: {args.name}")
         print(response)
         print("_" * 50)
@@ -103,7 +92,7 @@ def handle_create_repo(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_clone_repo(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.clone_repo(args.user_id, args.name, args.source_name, args.source_owner_id)
+        response = sdk.git.clone_repo(args.name, args.source_name, args.source_owner_id)
         print(f"🔄 Successfully cloned repository: {args.name}")
         print(response)
         print("_" * 50)
@@ -114,7 +103,7 @@ def handle_clone_repo(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_list_branches(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.list_branches(args.user_id, args.repository)
+        response = sdk.git.list_branches(args.repository)
         print(f"🌿 Branches in repository '{args.repository}':")
         print(response)
         print("_" * 50)
@@ -125,7 +114,7 @@ def handle_list_branches(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_checkout_branch(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.checkout_branch(args.user_id, args.repository, args.branch)
+        response = sdk.git.checkout_branch(args.repository, args.branch)
         print(f"✅ Checked out branch '{args.branch}' in repository '{args.repository}'")
         print(response)
         print("_" * 50)
@@ -136,7 +125,7 @@ def handle_checkout_branch(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_create_branch(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.create_branch(args.user_id, args.repository, args.branch_name, args.base_branch)
+        response = sdk.git.create_branch(args.repository, args.branch_name, args.base_branch)
         print(f"🌱 Created branch '{args.branch_name}' from '{args.base_branch}' in repository '{args.repository}'")
         print(response)
         print("_" * 50)
@@ -147,7 +136,7 @@ def handle_create_branch(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_delete_branch(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.delete_branch(args.user_id, args.repository, args.branch)
+        response = sdk.git.delete_branch(args.repository, args.branch)
         print(f"🗑️ Deleted branch '{args.branch}' in repository '{args.repository}'")
         print(response)
         print("_" * 50)
@@ -158,7 +147,7 @@ def handle_delete_branch(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_merge(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.merge(args.user_id, args.repository, args.ours, args.theirs, args.message)
+        response = sdk.git.merge(args.repository, args.ours, args.theirs, args.message)
         print(f"🔀 Merged '{args.theirs}' into '{args.ours}' in repository '{args.repository}'")
         print(response)
         print("_" * 50)
@@ -169,7 +158,7 @@ def handle_merge(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_commit_file(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.commit_file(args.user_id, args.repository, args.file_path, args.content, args.message)
+        response = sdk.git.commit_file(args.repository, args.file_path, args.content, args.message)
         print(f"💾 Committed file '{args.file_path}' to repository '{args.repository}'")
         print(response)
         print("_" * 50)
@@ -180,7 +169,7 @@ def handle_commit_file(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_get_log(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.get_log(args.user_id, args.repository, args.depth)
+        response = sdk.git.get_log(args.repository, args.depth)
         print(f"📜 Commit log for repository '{args.repository}':")
         print(response)
         print("_" * 50)
@@ -191,7 +180,7 @@ def handle_get_log(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_get_file(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.get_file(args.user_id, args.repository, args.file_path, args.ref)
+        response = sdk.git.get_file(args.repository, args.file_path, args.ref)
         print(f"📄 File '{args.file_path}' at ref '{args.ref}' in repository '{args.repository}':")
         print(response)
         print("_" * 50)
@@ -202,7 +191,7 @@ def handle_get_file(sdk: StitchSDK, args: argparse.Namespace) -> None:
 def handle_diff(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.diff(args.user_id, args.repository, args.oid1, args.oid2)
+        response = sdk.git.diff(args.repository, args.oid1, args.oid2)
         print(f"🔍 Diff between '{args.oid1}' and '{args.oid2}' in repository '{args.repository}':")
         print(response)
         print("_" * 50)
