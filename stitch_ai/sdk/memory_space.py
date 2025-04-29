@@ -1,11 +1,11 @@
-from stitch_ai.api.memory_space import MemorySpaceAPIClient
+from stitch_ai.api.memory_space import MemorySpaceAPIClient, MemoryType
 
 class MemorySpaceSDK:
     def __init__(self, base_url: str, api_key: str):
         self.client = MemorySpaceAPIClient(base_url, api_key)
 
-    def create_space(self, repository: str):
-        return self.client.create_space(repository)
+    def create_space(self, repository: str, memory_type: MemoryType = MemoryType.AGENT_MEMORY):
+        return self.client.create_space(repository, memory_type)
 
     def get_space(self, repository: str, ref=None):
         return self.client.get_space(repository, ref)

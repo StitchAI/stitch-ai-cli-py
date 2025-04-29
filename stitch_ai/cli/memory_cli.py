@@ -7,6 +7,7 @@ def add_memory_subparsers(subparsers, handlers):
     # Create space command
     create_space_parser = subparsers.add_parser('create-space', help='Create a new memory space')
     create_space_parser.add_argument('space', help='Name of the memory space')
+    create_space_parser.add_argument('--type', '-t', help='Type of the memory space', default="AGENT_MEMORY")
 
     # get space command
     get_space_parser = subparsers.add_parser('get-space', help='Get a memory space')
@@ -60,7 +61,7 @@ def add_memory_subparsers(subparsers, handlers):
 def handle_create_space(sdk: StitchSDK, args: argparse.Namespace) -> None:
     try:
         print("_" * 50)
-        response = sdk.memory_space.create_space(args.space)
+        response = sdk.memory_space.create_space(args.space, args.type)
         print(f"🌟 Successfully created space: {args.space}")
         print(response)
         print("_" * 50)
