@@ -1,15 +1,20 @@
 import requests
 from typing import Dict, Any, Optional
 from .client import BaseAPIClient
+from enum import Enum
+
+class MemoryType(Enum):
+    AGENT_MEMORY = "AGENT_MEMORY"
+    EXTERNAL_MEMORY = "EXTERNAL_MEMORY"
 
 class MemorySpaceAPIClient(BaseAPIClient):
-    def create_space(self, repository: str) -> Dict[str, Any]:
+    def create_space(self, repository: str, memory_type: MemoryType = MemoryType.AGENT_MEMORY) -> Dict[str, Any]:
         """
         Create a new memory space (/memory-space/create)
         """
         url = f"{self.base_url}/memory-space/create"
         params = {"userId": self.user_id, "apiKey": self.api_key}
-        payload = {"repository": repository}
+        payload = {"repository": repository, "type": memory_type.value}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
         return response.json()
