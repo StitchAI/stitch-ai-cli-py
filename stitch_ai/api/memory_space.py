@@ -14,10 +14,10 @@ class MemorySpaceAPIClient(BaseAPIClient):
         """
         url = f"{self.base_url}/memory-space/create"
         params = {"userId": self.user_id, "apiKey": self.api_key}
-        payload = {"repository": repository, "type": memory_type}
+        payload = {"repository": repository, "type": str(memory_type)}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": repository, "type": memory_type}
 
     def get_space(self, repository: str, ref: Optional[str] = None) -> Dict[str, Any]:
         """
