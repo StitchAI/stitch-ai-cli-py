@@ -104,7 +104,14 @@ class MemoryProcessor:
         
         # Backup existing collection if it exists
         self._backup_existing_collection(client, db_dir)
-        
+
+        # Ensure collection is deleted before creating
+        for _ in range(3):
+            if "short_term" in client.list_collections():
+                client.delete_collection("short_term")
+            else:
+                break
+
         # Create embedding function
         default_ef = embedding_functions.DefaultEmbeddingFunction()
         
