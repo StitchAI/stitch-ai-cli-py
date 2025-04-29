@@ -1,5 +1,5 @@
 import requests
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 class BaseAPIClient:
     def __init__(self, base_url: str, api_key: str):
@@ -12,6 +12,7 @@ class BaseAPIClient:
         """
         self.base_url = base_url.rstrip('/')
         self.api_key = api_key
+        self.user_id = self.get_user_id()
 
     def get_headers(self) -> Dict[str, str]:
         """Get the default headers for API requests"""
@@ -19,6 +20,14 @@ class BaseAPIClient:
             "apikey": self.api_key,
             "Content-Type": "application/json",
         }
+    
+    def get_user_id(self) -> str:
+        """Get the user ID from the API key"""
+        url = f"{self.base_url}/user/api-key/user?apiKey={self.api_key}"
+        response = requests.get(url, headers=self.get_headers())
+        response.raise_for_status()
+        return response.json()['userId']
+
 
 class APIClient(BaseAPIClient):
     def create_key(self, user_id: str, hashed_id: str, name: str) -> Dict[str, Any]:
