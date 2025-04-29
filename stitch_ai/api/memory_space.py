@@ -39,7 +39,7 @@ class MemorySpaceAPIClient(BaseAPIClient):
         params = {"userId": self.user_id, "apiKey": self.api_key}
         response = requests.delete(url, params=params, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": repository}
 
     def clone_space(self, repository: str, source_name: str, source_owner_id: str) -> Dict[str, Any]:
         """
@@ -50,7 +50,7 @@ class MemorySpaceAPIClient(BaseAPIClient):
         payload = {"repository": repository, "sourceName": source_name, "sourceOwnerId": source_owner_id}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": repository}
 
     def get_history(self, repository: str) -> Dict[str, Any]:
         """

@@ -36,53 +36,49 @@ class StitchSDK:
                 files.append({"filePath": "episodic.data", "content": data})
             else:
                 data = self.memory_processor.process_memory_file(episodic_path)
-                if isinstance(data, str) and len(data) > 2000:
-                    data = self.text_processor.chunk_text(data)
                 files.append({"filePath": "episodic.data", "content": data})
         if character_path:
             data = self.memory_processor.process_character_file(character_path)
-            if isinstance(data, str) and len(data) > 2000:
-                data = self.text_processor.chunk_text(data)
             files.append({"filePath": "character.data", "content": data})
         return self.memory.push_memory(repository=space, message=message, files=files)
 
-    def pull_memory(self, repository: str, memory_name: str, db_path: str) -> Dict[str, Any]:
+    def pull_memory(self, repository: str, db_path: str) -> Dict[str, Any]:
         response_data = self.user.get_user_memory(repository)
 
         memory_item = None
         if isinstance(response_data, list) and response_data:
             for item in response_data:
-                if item.get("name") == memory_name:
+                if item.get("name") == repository:
                     memory_item = item
                     break
         if not memory_item:
-            raise ValueError(f"No memory found with name: {memory_name}")
+            raise ValueError(f"No memory found with name: {repository}")
 
         save_data = {"data": {}}
         if "characterMemory" in memory_item and memory_item["characterMemory"].get("content"):
-            save_data["data"]["character"] = memory_item["characterMemory"]["content"]
+            save_data["data"]["character"] = memory_item["characterMemory"]["content"][0]
         if "episodicMemory" in memory_item and memory_item["episodicMemory"].get("content"):
-            save_data["data"]["episodic"] = memory_item["episodicMemory"]["content"]
+            save_data["data"]["episodic"] = memory_item["episodicMemory"]["content"][0]
         if not save_data["data"]:
             raise ValueError("Memory does not contain character or episodic data")
         self.memory_processor.save_memory_data(save_data, db_path)
         return response_data
 
-    def pull_external_memory(self, repository: str, memory_name: str, rag_path: str) -> Dict[str, Any]:
+    def pull_external_memory(self, repository: str, rag_path: str) -> Dict[str, Any]:
         response_data = self.user.get_user_memory(repository)
 
         memory_item = None
         if isinstance(response_data, list) and response_data:
             for item in response_data:
-                if item.get("name") == memory_name:
+                if item.get("name") == repository:
                     memory_item = item
                     break
         if not memory_item:
-            raise ValueError(f"No memory found with name: {memory_name}")
+            raise ValueError(f"No memory found with name: {repository}")
 
         save_data = {"data": {}}
         if "externalMemory" in memory_item and memory_item["externalMemory"].get("content"):
-            save_data["data"]["external"] = memory_item["externalMemory"]["content"]
+            save_data["data"]["external"] = memory_item["externalMemory"]["content"][0]
         if not save_data["data"]:
             raise ValueError("Memory does not contain external data")
         self.memory_processor.save_memory_data(save_data, rag_path)

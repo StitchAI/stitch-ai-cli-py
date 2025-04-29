@@ -9,7 +9,7 @@ class GitAPIClient(BaseAPIClient):
         payload = {"name": name}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": name}
 
     def clone_repo(self, name: str, source_name: str, source_owner_id: str) -> Dict[str, Any]:
         url = f"{self.base_url}/git/clone"
@@ -17,7 +17,7 @@ class GitAPIClient(BaseAPIClient):
         payload = {"name": name, "sourceName": source_name, "sourceOwnerId": source_owner_id}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": name}
 
     def list_branches(self, repository: str) -> Dict[str, Any]:
         url = f"{self.base_url}/git/{repository}/branches"
@@ -32,7 +32,7 @@ class GitAPIClient(BaseAPIClient):
         payload = {"branch": branch}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": repository}
 
     def create_branch(self, repository: str, branch_name: str, base_branch: str) -> Dict[str, Any]:
         url = f"{self.base_url}/git/{repository}/branch/create"
@@ -40,14 +40,14 @@ class GitAPIClient(BaseAPIClient):
         payload = {"branchName": branch_name, "baseBranch": base_branch}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": repository}
 
     def delete_branch(self, repository: str, branch: str) -> Dict[str, Any]:
         url = f"{self.base_url}/git/{repository}/branch/{branch}"
         params = {"userId": self.user_id, "apiKey": self.api_key}
         response = requests.delete(url, params=params, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": repository}
 
     def merge(self, repository: str, ours: str, theirs: str, message: str) -> Dict[str, Any]:
         url = f"{self.base_url}/git/{repository}/merge"
@@ -55,7 +55,7 @@ class GitAPIClient(BaseAPIClient):
         payload = {"ours": ours, "theirs": theirs, "message": message}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": repository}
 
     def commit_file(self, repository: str, file_path: str, content: str, message: str) -> Dict[str, Any]:
         url = f"{self.base_url}/git/{repository}/commit"
@@ -63,7 +63,7 @@ class GitAPIClient(BaseAPIClient):
         payload = {"filePath": file_path, "content": content, "message": message}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": repository}
 
     def get_log(self, repository: str, depth: Optional[int] = None) -> Dict[str, Any]:
         url = f"{self.base_url}/git/{repository}/log"

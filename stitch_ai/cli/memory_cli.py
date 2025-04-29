@@ -38,13 +38,11 @@ def add_memory_subparsers(subparsers, handlers):
     # Pull memory command
     pull_parser = subparsers.add_parser('pull', help='Pull memory from a space')
     pull_parser.add_argument('repository', help='Name of the memory space')
-    pull_parser.add_argument('memory_name', help='Name of the memory')
     pull_parser.add_argument('--db-path', '-p', required=True, help='Path to save the memory data')
 
     # Pull external memory command
     pull_external_parser = subparsers.add_parser('pull-external', help='Pull external memory')
     pull_external_parser.add_argument('repository', help='Name of the memory space')
-    pull_external_parser.add_argument('memory_name', help='Name of the memory')
     pull_external_parser.add_argument('--rag-path', '-p', required=True, help='Path to save the RAG file')
 
     handlers.update({
@@ -137,7 +135,6 @@ def handle_pull(sdk: StitchSDK, args: argparse.Namespace) -> None:
         print("_" * 50)
         response = sdk.pull_memory(
             repository=args.repository,
-            memory_name=args.memory_name,
             db_path=args.db_path
         )
         print(f"📥 Successfully pulled memory from space: {args.repository}")
@@ -153,7 +150,6 @@ def handle_pull_external(sdk: StitchSDK, args: argparse.Namespace) -> None:
         print("_" * 50)
         response = sdk.pull_external_memory(
             repository=args.repository,
-            memory_name=args.memory_name,
             rag_path=args.rag_path
         )
         print(f"🌐 Successfully pulled external memory")

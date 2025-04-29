@@ -12,4 +12,4 @@ class MemoryAPIClient(BaseAPIClient):
         payload = {"files": files, "message": message}
         response = requests.post(url, params=params, json=payload, headers=self.get_headers())
         response.raise_for_status()
-        return response.json()
+        return {"repository": repository, "message": message, "files": files}
