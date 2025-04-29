@@ -1,7 +1,7 @@
 import os
 from typing import Optional, Dict, Any
-from .processors.memory_processor import MemoryProcessor
-from .processors.text_processor import TextProcessor
+from ..processors.memory_processor import MemoryProcessor
+from ..processors.text_processor import TextProcessor
 from .user import UserSDK
 from .marketplace import MarketplaceSDK
 from .memory import MemorySDK
